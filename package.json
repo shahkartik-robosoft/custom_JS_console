@@ -1,0 +1,27 @@
+{
+  "name": "custom_js_console",
+  "version": "1.0.0",
+  "description": "custom JS console",
+  "main": "index.js",
+  "scripts": {
+    "start": "parcel index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shahkartik-robosoft/custom_JS_console.git"
+  },
+  "author": "Kartik Shah",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shahkartik-robosoft/custom_JS_console/issues"
+  },
+  "homepage": "https://github.com/shahkartik-robosoft/custom_JS_console#readme",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4"
+  },
+  "dependencies": {
+    "acorn": "^7.3.1",
+    "ramda": "^0.27.0",
+    "rxjs": "^6.5.5"
+  }
+}
