@@ -1,7 +1,8 @@
-import { inputSubscriber } from './src/subscribers';
+import { inputSubscriber, scriptsExecuted, clearData } from './src/subscribers';
+import { clearInputConsole, clearOutputConsole, output } from './src/fields';
 
-document.getElementById("clearInputConsole").addEventListener("click", () => {
+clearInputConsole.addEventListener("click", () => {
     scriptsExecuted.length = 0;
-    variablesData = {};
+    clearData();
 });
-document.getElementById("clearOutputConsole").addEventListener("click", () => output.innerHTML = '');
+clearOutputConsole.addEventListener("click", () => output.innerHTML = '');

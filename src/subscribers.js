@@ -45,6 +45,8 @@ const inputSubscriber = inputStream.subscribe(e => {
             }
             variableVal = parseDetails.body[0].expression.right.value;
         }
+        const indexOfSemiColn = `${variableVal}`.indexOf(';');
+        variableVal = indexOfSemiColn > -1 ? variableVal.substr(0, indexOfSemiColn) : variableVal;
         let kind = parseDetails.body[0].kind && parseDetails.body[0].kind;
         if(curry(validateScript)(type)(name)(kind)(scriptsExecuted)) {
             const scriptDetails = {};
@@ -67,7 +69,10 @@ const inputSubscriber = inputStream.subscribe(e => {
         console.log('error   ', e);
     }
 });
+const clearData = () => variablesData = {};
 
 export {
-    inputSubscriber
+    inputSubscriber,
+    scriptsExecuted,
+    clearData
 };
