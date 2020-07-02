@@ -1,6 +1,8 @@
 const keySpaces = Object.freeze({
     enterKey: 13,
     shiftEnter: 16,
+    upArrow: 38,
+    downArrow: 40,
 });
 
 const parserTypes = Object.freeze({

@@ -1,4 +1,4 @@
-const input = document.getElementById("consoleInput");
+const inputField = document.getElementById("consoleInput");
 const output = document.getElementById("consoleOutput");
 const clearInputConsole = document.getElementById("clearInputConsole");
 const clearOutputConsole = document.getElementById("clearOutputConsole");
@@ -8,7 +8,7 @@ const updateOutputContent = (value, color='green') => {
 }
 
 export {
-    input,
+    inputField,
     output,
     clearInputConsole,
     clearOutputConsole,
