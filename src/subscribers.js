@@ -1,9 +1,9 @@
 import { parse } from "acorn";
-import { curry } from "ramda";
+import { curry, lensProp, lensPath, lensIndex, view } from "ramda";
 import { inputStream } from './observables';
 import { input, output, updateOutputContent } from './fields';
 import { parserTypes,variableTypes, functionTypes, errColors } from './constants';
-import { validateScript } from './utils';
+import { validateScript, getRequiredParams } from './utils';
 
 
 let scriptsExecuted = [];
@@ -16,17 +16,28 @@ const inputSubscriber = inputStream.subscribe(e => {
     try {
         const inputVal = e.target.value;
         const parseDetails = parse(inputVal);
-        const type = parseDetails.body[0].type;
-        let name = parseDetails.body[0].declarations && parseDetails.body[0].declarations[0].id.name;
+        const { body, type } = getRequiredParams(parseDetails);
+        let name;
+        if (view(lensProp('declarations'), body)) {
+            const declaration = view(lensIndex(0), view(lensProp('declarations'), body));
+            const nameLens = lensPath([
+                'id',
+                'name'
+            ]);
+            name = view(nameLens, declaration);
+        }
         let splitInputValue = inputVal.split("=");
         let variableVal;
         if (parseDetails.body[0].declarations) {
             variableVal = splitInputValue.length === 2 ? splitInputValue[1] : splitInputValue.slice(1,3).join("=");
         }
         if (type === parserTypes.EXPRESSION_STATEMENT) {
-            const operator = parseDetails.body[0].expression.operator;
+            const operatorLens = lensPath(['expression', 'operator']);
+            const operator = view(operatorLens, body);
+            console.log('operator', operator);
             if (!operator) {
-                name = parseDetails.body[0].expression.name;
+                const nameLens = lensPath(['expression', 'name']);
+                name = view(nameLens, body);
                 if(!variablesData[name]) {
                     updateOutputContent(`Uncaught ReferenceError: ${name} is not defined`, errColors.RED);
                     return;
@@ -36,18 +47,21 @@ const inputSubscriber = inputStream.subscribe(e => {
                 input.value = '';
                 return;
             }
-            const assignVal = parseDetails.body[0].expression.right.value;
-            name = parseDetails.body[0].expression.left.name;
+            const assignValLens = lensPath(['expression', 'right', 'value']);
+            const assignVal = view(assignValLens, body);
+            const nameLens = lensPath(['expression','left', 'name']);
+            name = view(nameLens, body);
             if (operator === '==' || operator === '===') {
-                outputString = variablesData[name] === assignVal;
+                outputString = variablesData[name] == assignVal;
+                updateOutputContent(outputString);
                 input.value = '';
                 return;
             }
-            variableVal = parseDetails.body[0].expression.right.value;
+            variableVal = assignVal;
         }
         const indexOfSemiColn = `${variableVal}`.indexOf(';');
         variableVal = indexOfSemiColn > -1 ? variableVal.substr(0, indexOfSemiColn) : variableVal;
-        let kind = parseDetails.body[0].kind && parseDetails.body[0].kind;
+        let kind = view(lensProp('kind'), body);
         if(curry(validateScript)(type)(name)(kind)(scriptsExecuted)) {
             const scriptDetails = {};
             scriptDetails.type = type;
@@ -56,7 +70,7 @@ const inputSubscriber = inputStream.subscribe(e => {
             scriptDetails.kind = kind;
             scriptsExecuted = [...scriptsExecuted].filter(script => script.name !== name).concat(scriptDetails);
             if (type === parserTypes.VARIABLE_DECLARATION || type === parserTypes.EXPRESSION_STATEMENT) {
-                variablesData[name] = variableVal;
+                variablesData[name] = `${variableVal}`.trim("↵");
             }
         } else {
             errStr = `Uncaught SyntaxError: Identifier ${name} has already been declared.`;
