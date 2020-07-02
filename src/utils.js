@@ -1,3 +1,4 @@
+import { lensProp, lensIndex, view } from "ramda";
 import { parserTypes, variableTypes } from './constants';
 
 const validateScript = (type, name, kind, scriptsExecuted) => {
@@ -16,6 +17,14 @@ const validateScript = (type, name, kind, scriptsExecuted) => {
     }
 };
 
+const getRequiredParams = parsedData => {
+    const dataLens = view(lensProp('body'), parsedData);
+    const body = view(lensIndex(0), dataLens);
+    const type = view(lensProp('type'), body);
+    return { body, type};
+};
+
 export {
-    validateScript
+    validateScript,
+    getRequiredParams
 };
