@@ -11,6 +11,12 @@ const parserTypes = Object.freeze({
     EXPRESSION_STATEMENT: 'ExpressionStatement',
 });
 
+const expressionTypes = Object.freeze({
+    ASSIGNMENT_EXPRESSION: 'AssignmentExpression',
+    BINARY_EXPRESSION: 'BinaryExpression',
+    CALL_EXPRESSION: 'CallExpression',
+})
+
 const variableTypes = Object.freeze({
     CONST: 'const',
     VAR: 'var',
@@ -30,6 +36,7 @@ export {
     keySpaces,
     parserTypes,
     variableTypes,
+    expressionTypes,
     functionTypes,
     errColors,
  };

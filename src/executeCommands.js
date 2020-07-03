@@ -1,6 +1,6 @@
 import {parse} from "acorn";
 import {curry, lensIndex, lensPath, lensProp, view} from "ramda";
-import {errColors, functionTypes, parserTypes, variableTypes} from "./constants";
+import {errColors, functionTypes, parserTypes, variableTypes, expressionTypes} from "./constants";
 import {inputField, updateOutputContent} from "./fields";
 import {getRequiredParams, validateScript} from "./utils";
 
@@ -36,6 +36,17 @@ const executeCommand = e => {
             variableVal = splitInputValue.length === 2 ? splitInputValue[1] : splitInputValue.slice(1,3).join("=");
         }
         if (type === parserTypes.EXPRESSION_STATEMENT) {
+            const expressionTypeLens = lensPath(['expression', 'type']);
+            const expressionType = view(expressionTypeLens, body);
+            if (expressionType === expressionTypes.CALL_EXPRESSION) {
+                const nameLens = lensPath(['expression', 'callee', 'name']);
+                name = view(nameLens, body);
+                outputString = eval(variablesData[name])();
+                console.log('o/p ', outputString);
+                updateOutputContent(outputString);
+                inputField.value = '';
+                return;
+            }
             const operatorLens = lensPath(['expression', 'operator']);
             const operator = view(operatorLens, body);
             if (!operator) {
@@ -62,8 +73,8 @@ const executeCommand = e => {
             }
             variableVal = assignVal;
         }
-        const indexOfSemiColn = `${variableVal}`.indexOf(';');
-        variableVal = indexOfSemiColn > -1 ? variableVal.substr(0, indexOfSemiColn) : variableVal;
+        const lastIndexOfSemiColn = `${variableVal}`.lastIndexOf(';');
+        variableVal = variableVal.length - lastIndexOfSemiColn === 1 ? variableVal.substr(0, lastIndexOfSemiColn) : variableVal;
         let kind = view(lensProp('kind'), body);
         if(curry(validateScript)(type)(name)(kind)(variableAttributes)) {
             const scriptDetails = {};
